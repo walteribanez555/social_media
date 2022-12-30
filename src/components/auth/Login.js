@@ -1,5 +1,5 @@
 import { Box, Button, Center, FormControl, FormErrorMessage, FormLabel, Heading, Input, Link, Text } from '@chakra-ui/react'
-import { REGISTER } from 'lib/routes';
+import { DASHBOARD, REGISTER } from 'lib/routes';
 import React from 'react';
 import { Link  as RouterLink} from 'react-router-dom';
 import {useLogin} from "hooks/auth";
@@ -8,12 +8,18 @@ import { emailValidate, passwordValidate } from 'utils/form-validate';
 
 export default function Login() {
     const{ login, isLoading} = useLogin();
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, reset, formState: {errors} } = useForm();
+
+
+   
 
     async function handleLogin(data) {
 
-        console.log(data);
+      const succeeded = await login({email: data.email,
+        password: data.password,
+        redirectTo:DASHBOARD });
 
+        if (succeeded) reset();
     }
 
   return (
@@ -24,21 +30,21 @@ export default function Login() {
 
             <form onSubmit={ handleSubmit(handleLogin)}>
 
-                <FormControl isInvalid={true} py="2">
+                <FormControl isInvalid={errors.email} py="2">
                     <FormLabel>
                         Email
                     </FormLabel>
                     <Input type="email" placeholder="user@email.com" {...register("email", emailValidate)} />
-                    <FormErrorMessage>This is an error message</FormErrorMessage>
+                    <FormErrorMessage>{errors.email &&  errors.email.message}</FormErrorMessage>
 
                 </FormControl>
 
-                <FormControl isInvalid={true} py="2">
+                <FormControl isInvalid={errors.password} py="2">
                     <FormLabel>
                         Password
                     </FormLabel>
                     <Input type="Password" placeholder="insert your password" {...register("password", passwordValidate)} />
-                    <FormErrorMessage>This is an error message</FormErrorMessage>
+                    <FormErrorMessage>{errors.password &&  errors.password.message}</FormErrorMessage>
 
                 </FormControl>
 
@@ -48,7 +54,7 @@ export default function Login() {
                     colorScheme="teal"  
                     size="md" 
                     w="full" 
-                    isLoading={true}
+                    //isLoading={true}
                     loadingText = "Loggin In"
                     >
                     Log In
